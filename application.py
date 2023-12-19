@@ -5,7 +5,7 @@ import sys
 import textwrap
 import traceback
 from typing import Sequence
-from discord import app_commands
+from discord import FFmpegPCMAudio, app_commands
 import logging.handlers
 import discord
 import os
@@ -37,7 +37,7 @@ logger.info(f"反応対象のチャンネルIDは次の通りです。{responseC
 @client.event
 async def on_ready():
     logger.debug(f"Called : {sys._getframe().f_code.co_name}")
-    # await tree.sync()
+    await tree.sync()
     logger.info(f'We have logged in as {client.user}')
 
 @client.event
@@ -66,6 +66,27 @@ async def on_message(message):
         
             logger.error(f"エラーが発生しました。\n{error_message}")
             await message.channel.send(f"エラーが発生しました。\n\n{error_message[-1800:]}")
+
+
+@tree.command(name="play",description="牧瀬紅莉栖が歌ってくれます。")
+async def play(interaction:discord.Interaction):
+    await interaction.response.defer()
+
+    # ボイスチャンネルに接続
+    if interaction.user.voice is None:
+        await interaction.followup.send("まずボイスチャンネルに接続してください！")
+        return
+    
+    bot_connected_channel = list(filter(lambda x: x.channel.id == interaction.user.voice.channel.id, interaction.client.voice_clients))
+    if len(bot_connected_channel) > 0:
+        # 既に接続している場合は、何もしない
+        await interaction.followup.send("既に接続しています。")
+    else:
+        bot_connected_channel = await interaction.user.voice.channel.connect()
+        await interaction.followup.send("接続しました。")
+
+        # 音声ファイルを再生
+        bot_connected_channel.play(FFmpegPCMAudio("content/LOST GARDEN.mp3"))
 
 # クライアントを実行
 discord.utils.setup_logging()

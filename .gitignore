@@ -6,3 +6,4 @@ __pycache__/
 dalle_pics/
 api_generated_files/
 user_upload_files/
+content/
