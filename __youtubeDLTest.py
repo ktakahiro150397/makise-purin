@@ -25,12 +25,23 @@ async def main():
     #     print(e)
 
     # # プレイリスト : 内容をすべて普通に落とせる
-    # playlist_url = "https://www.youtube.com/playlist?list=PLEi4OmzKDGqEEz5Ye-dEEFqkjXLbADdCq"
+    playlist_url = "https://www.youtube.com/playlist?list=PLEi4OmzKDGqEEz5Ye-dEEFqkjXLbADdCq"
     # try:
     #    ytGetter.getFileFromUrl(playlist_url)
     # except yt_dlp.utils.DownloadError as e:
     #     # エラー発生時にキャッチして対応する
     #     print(e)
+
+    # # 動画情報を取得
+    # info = ytGetter.getVideoInfo(id)
+    # print(info.id)
+    # print(info.title)
+
+    # プレイリスト情報を取得
+    playlist_info = ytGetter.getVideoInfo(playlist_url)
+    for item in playlist_info["entries"]:
+        print(item["id"])
+        print(item["title"])
 
 if __name__ == "__main__":
     asyncio.run(main())

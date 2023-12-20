@@ -12,26 +12,24 @@ class YoutubeGetter(FileGetterBase):
     def __init__(self,tempDir:str) -> None:
         self.tempDir = tempDir
 
+        # オプション
+        self.ydl_opts = {
+            'format': 'm4a/bestaudio/best',
+            'outtmpl' : self.tempDir + "/%(id)s.%(ext)s"
+        }
+
     def getFileFromUrl(self, url:str) -> None:
         """指定したURLからファイルをダウンロードし、一時フォルダに保存する。
 
         Args:
             url (str): ダウンロードするファイルのURL。動画IDでも可。
         """
-
-        # オプション
-        ydl_opts = {
-            'format': 'm4a/bestaudio/best',
-            'outtmpl' : self.tempDir + "/%(id)s.%(ext)s"
-        }
-
-        with YoutubeDL(ydl_opts) as ydl:
+        with YoutubeDL(self.ydl_opts) as ydl:
             ydl.download([url])
 
+    def getFileFromUrl(self, ydl:YoutubeDL, url:str) -> None:
+        ydl.download([url])
 
-    def isExists(self,ydl:YoutubeDL,url:str) -> bool:
-        pass
-
-    def isExists(self, url:str) -> bool:
+    def getVideoInfo(self,url:str):
         with YoutubeDL() as ydl:
-            return self.isExists(ydl,url)
+            return ydl.extract_info(url,download=False)
