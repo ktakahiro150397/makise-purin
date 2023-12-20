@@ -4,6 +4,8 @@ from os import getcwd
 import yt_dlp
 
 from Model.Getter.Youtube import YoutubeGetter
+from Model.PlayList.PlayList import PlayList, PlayListItem
+from yt_dlp import YoutubeDL
 
 
 async def main():
@@ -37,11 +39,30 @@ async def main():
     # print(info.id)
     # print(info.title)
 
-    # プレイリスト情報を取得
-    playlist_info = ytGetter.getVideoInfo(playlist_url)
-    for item in playlist_info["entries"]:
-        print(item["id"])
-        print(item["title"])
+    # # プレイリスト情報を取得
+    # playlist_info = ytGetter.getVideoInfo(playlist_url)
+    # for item in playlist_info["entries"]:
+    #     print(item["id"])
+    #     print(item["title"])
+
+    # プレイリスト追加イメージ
+    playList = PlayList()
+        
+    ydl_opts = {
+        'format': 'm4a/bestaudio/best',
+        'outtmpl' : tempDir + "/%(id)s.%(ext)s"
+    }
+
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ytGetter.getVideoInfo(ydl,id)
+        item = PlayListItem(info.title,info.id)
+        ytGetter.getFileFromUrl(ydl,id)
+        item.is_download = True
+        item.file_path = tempDir + "/" + info.id + ".m4a"
+
+    playList.AddPlayListItem(item)
+
+    print(playList.Items[0])
 
 if __name__ == "__main__":
     asyncio.run(main())

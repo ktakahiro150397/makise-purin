@@ -1,6 +1,13 @@
 
+from dataclasses import dataclass
 from pathlib import Path
 from yt_dlp import YoutubeDL
+
+
+@dataclass    
+class YoutubeVideoInfo():
+    id : str = ""
+    title : str = ""
 
 class FileGetterBase():
     def __init__(self) -> None:
@@ -30,6 +37,10 @@ class YoutubeGetter(FileGetterBase):
     def getFileFromUrl(self, ydl:YoutubeDL, url:str) -> None:
         ydl.download([url])
 
-    def getVideoInfo(self,url:str):
+    def getVideoInfo(self,url:str) -> YoutubeVideoInfo:
         with YoutubeDL() as ydl:
-            return ydl.extract_info(url,download=False)
+            return self.getVideoInfo(ydl,url)
+
+    def getVideoInfo(self, ydl:YoutubeDL,url:str) -> YoutubeVideoInfo:
+        info = ydl.extract_info(url,download=False)
+        return YoutubeVideoInfo(info["id"],info["title"])
