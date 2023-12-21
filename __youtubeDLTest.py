@@ -5,6 +5,7 @@ import yt_dlp
 
 from Model.Getter.Youtube import YoutubeGetter
 from Model.PlayList.PlayList import PlayList, PlayListItem
+from Model.PlayList.PlayListManager import PlayListManager
 from yt_dlp import YoutubeDL
 
 
@@ -45,26 +46,32 @@ async def main():
     #     print(item["id"])
     #     print(item["title"])
 
-    # プレイリスト追加イメージ
-    playList = PlayList()
+    # # プレイリスト追加イメージ
+    # playList = PlayList()
         
-    ydl_opts = {
-        'format': 'm4a/bestaudio/best',
-        'outtmpl' : tempDir + "/%(id)s.%(ext)s"
-    }
+    # ydl_opts = {
+    #     'format': 'm4a/bestaudio/best',
+    #     'outtmpl' : tempDir + "/%(id)s.%(ext)s"
+    # }
 
-    with YoutubeDL(ydl_opts) as ydl:
-        info = ytGetter.getVideoInfo(ydl,id)
-        item = PlayListItem(title=info.title,
-                            id=info.id)
-        ytGetter.getFileFromUrl(ydl,id)
+    # with YoutubeDL(ydl_opts) as ydl:
+    #     info = ytGetter.getVideoInfo(ydl,id)
+    #     item = PlayListItem(title=info.title,
+    #                         id=info.id)
+    #     ytGetter.getFileFromUrl(ydl,id)
 
-        item.is_download = True
-        item.file_path = tempDir + "/" + info.id + ".m4a"
+    #     item.is_download = True
+    #     item.file_path = tempDir + "/" + info.id + ".m4a"
 
-    playList.AddPlayListItem(item)
+    # playList.AddPlayListItem(item)
 
-    print(playList.Items.queue[0])
+    # print(playList.Items.queue[0])
+
+    channel_id = "test_id"
+    playListManager = PlayListManager("content")
+    playListManager.AddYoutubePlayListItem(channel_id,id)
+
+    print(playListManager.playListById[channel_id].Items.queue[0])
 
 if __name__ == "__main__":
     asyncio.run(main())

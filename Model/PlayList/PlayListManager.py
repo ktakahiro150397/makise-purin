@@ -14,6 +14,8 @@ class PlayListManager():
             'outtmpl' : tempDir + "/%(id)s.%(ext)s"
         }
 
+        self.tempDir = tempDir
+        self.ytGetter = YoutubeGetter(tempDir)
         self.ydl : YoutubeDL = YoutubeDL(ydl_opts)
 
     def __del__(self) -> None:
@@ -24,19 +26,17 @@ class PlayListManager():
         if channel_id not in self.playListById:
             self.playListById[channel_id] = PlayList()
 
-        
-
-        info = self.ydl.getVideoInfo(ydl,id)
+        # URLから情報を取得
+        info = self.ytGetter.getVideoInfo(self.ydl,url)
         item = PlayListItem(title=info.title,
                             id=info.id)
-        self.ydl.getFileFromUrl(ydl,id)
+        self.ytGetter.getFileFromUrl(self.ydl,url)
 
         # プレイリストアイテムを作成
         item = PlayListItem()
 
         item.is_download = True
-        item.file_path = tempDir + "/" + info.id + ".m4a"
-
+        item.file_path = self.tempDir + "/" + info.id + ".m4a"
 
         item.id = url
 
