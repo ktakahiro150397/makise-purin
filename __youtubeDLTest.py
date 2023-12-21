@@ -55,14 +55,16 @@ async def main():
 
     with YoutubeDL(ydl_opts) as ydl:
         info = ytGetter.getVideoInfo(ydl,id)
-        item = PlayListItem(info.title,info.id)
+        item = PlayListItem(title=info.title,
+                            id=info.id)
         ytGetter.getFileFromUrl(ydl,id)
+
         item.is_download = True
         item.file_path = tempDir + "/" + info.id + ".m4a"
 
     playList.AddPlayListItem(item)
 
-    print(playList.Items[0])
+    print(playList.Items.queue[0])
 
 if __name__ == "__main__":
     asyncio.run(main())

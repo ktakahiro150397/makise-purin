@@ -2,26 +2,26 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from queue import Queue
 
 from Model.Getter.Youtube import YoutubeGetter
 
 @dataclass
 class PlayListItem():
-    def __init__(self,title:str,id:str) -> None:
-        self.title : str = title
-        self.id : str = id
+    title : str = ""
+    id : str = ""
 
-        self.is_download : bool = False
-        self.file_path : Path = None
+    is_download : bool = False
+    file_path : Path = None
 
 @dataclass
 class PlayList():
 
     def __init__(self) -> None:
-        self.Items : list[PlayListItem] = []
+        self.Items : Queue = Queue()
 
     def AddPlayListItem(self,item:PlayListItem) -> None:
-        self.Items.append(item)
+        self.Items.put(item)
 
     # async def __download_playlist_item(self) -> None:
     #     # ダウンロードしていないプレイリストアイテムを取得
