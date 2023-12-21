@@ -12,6 +12,8 @@ import os
 from dotenv import main
 from datetime import datetime
 
+from Model.PlayList.PlayListManager import PlayListManager
+
 
 # 環境変数を読み込み
 main.load_dotenv()
@@ -32,6 +34,10 @@ tree = app_commands.CommandTree(client)
 responseChannelArray = os.getenv("DISCORD_RESPONSE_CHANNEL_ID").split(",")
 responseChannel = [int(val) for val in responseChannelArray]
 logger.info(f"反応対象のチャンネルIDは次の通りです。{responseChannel}")
+
+# プレイリストマネージャーのインスタンス化
+tempDir = os.getcwd() + "/content"
+playListManager = PlayListManager(tempDir)
 
 
 @client.event
@@ -67,26 +73,66 @@ async def on_message(message):
             logger.error(f"エラーが発生しました。\n{error_message}")
             await message.channel.send(f"エラーが発生しました。\n\n{error_message[-1800:]}")
 
-
 @tree.command(name="play",description="牧瀬紅莉栖が歌ってくれます。")
-async def play(interaction:discord.Interaction):
-    await interaction.response.defer()
+@app_commands.describe(url="YoutubeのURL。")
+async def play(interaction:discord.Interaction,url:str):
+    try:
 
-    # ボイスチャンネルに接続
-    if interaction.user.voice is None:
-        await interaction.followup.send("まずボイスチャンネルに接続してください！")
-        return
-    
-    bot_connected_channel = list(filter(lambda x: x.channel.id == interaction.user.voice.channel.id, interaction.client.voice_clients))
-    if len(bot_connected_channel) > 0:
-        # 既に接続している場合は、何もしない
-        await interaction.followup.send("既に接続しています。")
-    else:
-        bot_connected_channel = await interaction.user.voice.channel.connect()
-        await interaction.followup.send("接続しました。")
+        await interaction.response.defer()
+
+        # ボイスチャンネルに接続
+        if interaction.user.voice is None:
+            await interaction.followup.send("まずボイスチャンネルに接続してください！")
+            return
+        
+        if url == "":
+            await interaction.followup.send("URLを指定してください。")
+            return
+        
+        bot_connected_channel = list(filter(lambda x: x.channel.id == interaction.user.voice.channel.id, interaction.client.voice_clients))
+        if len(bot_connected_channel) > 0:
+            # 既に接続している場合は、何もしない
+            await interaction.followup.send("既に接続しています。")
+        else:
+            bot_connected_channel = await interaction.user.voice.channel.connect()
+            await interaction.followup.send("接続しました。")
+
+        
+        await interaction.followup.send("再生開始!")
+
+        # プレイリストに追加
+        playListManager.AddYoutubePlayListItem(interaction.user.voice.channel.id,url)
 
         # 音声ファイルを再生
-        bot_connected_channel.play(FFmpegPCMAudio("content/LOST GARDEN.mp3"))
+        playItem = playListManager.PopPlayListItem(interaction.user.voice.channel.id)
+        bot_connected_channel.play(playItem.get_discord_FFmpegPCMAudio())
+
+        await interaction.followup.send("再生中 : " + playItem.title)
+
+        # 再生終了を待つ
+        await interaction.followup.send("再生終了!")
+    
+    except Exception as e:
+        error_message = traceback.format_exc()
+        
+        logger.error(f"エラーが発生しました。\n{error_message}")
+        await interaction.followup.send(f"エラーが発生しました。\n\n{error_message[-1800:]}")
+
+@tree.command(name="stop",description="牧瀬紅莉栖が歌うのをやめてしまいます。")
+async def stop(interaction:discord.Interaction):
+    await interaction.response.defer()
+    await interaction.followup.send("stop called.")
+
+@tree.command(name="bye",description="牧瀬紅莉栖がボイスチャンネルから退出してしまいます。")
+async def bye(interaction:discord.Interaction):
+    await interaction.response.defer()
+
+    await interaction.followup.send("bye called.")
+
+
+
+
+
 
 # クライアントを実行
 discord.utils.setup_logging()

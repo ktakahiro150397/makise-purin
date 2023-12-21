@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from queue import Queue
 
+from discord import FFmpegPCMAudio
+
 from Model.Getter.Youtube import YoutubeGetter
 
 @dataclass
@@ -14,6 +16,9 @@ class PlayListItem():
     is_download : bool = False
     file_path : Path = None
 
+    def get_discord_FFmpegPCMAudio(self) -> FFmpegPCMAudio:
+        return FFmpegPCMAudio(self.file_path)
+
 @dataclass
 class PlayList():
 
@@ -22,15 +27,4 @@ class PlayList():
 
     def AddPlayListItem(self,item:PlayListItem) -> None:
         self.Items.put(item)
-
-    # async def __download_playlist_item(self) -> None:
-    #     # ダウンロードしていないプレイリストアイテムを取得
-    #     not_downloaded_items = [item for item in self.Items if item.is_download == False]
-
-    #     # それぞれに対してダウンロードを実行
-    #     pass
-    
-
-
-
     

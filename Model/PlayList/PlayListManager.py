@@ -37,10 +37,11 @@ class PlayListManager():
 
         item.is_download = True
         item.file_path = self.tempDir + "/" + info.id + ".m4a"
-
+        item.title = info.title
         item.id = url
 
         # プレイリストに追加
-        self.playListById[channel_id].AddPlayListItem(url)
+        self.playListById[channel_id].AddPlayListItem(item)
 
-    
+    def PopPlayListItem(self,channel_id:str) -> PlayListItem:
+        return self.playListById[channel_id].Items.get()
